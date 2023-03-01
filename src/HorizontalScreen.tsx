@@ -4,7 +4,7 @@ import { Children, useCallback, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 gsap.registerPlugin(ScrollTrigger); // moduel init
 
-const HorizontalScreen = ({ children }: any) => {
+const HorizontalScreen = () => {
   const panelRef = useRef<any>([]);
   const containerRef = useRef<any>(null);
 
@@ -19,29 +19,35 @@ const HorizontalScreen = ({ children }: any) => {
   const create = createPanelsRefs(); // closure
 
   useLayoutEffect(() => {
-    gsap.to(panelRef.current, {
-      ease: "none",
-      xPercent: -100 * (panelRef.current.length - 1),
-      scrollTrigger: {
-        end: () => "+=" + containerRef.current.offsetWidth * 2,
-        trigger: containerRef.current,
-        pin: true,
-        scrub: 0.5,
-      },
-    });
-    ScrollTrigger.normalizeScroll(true);
+    const ctx = gsap.context(() => {
+      gsap.to(panelRef.current, {
+        ease: "none",
+        xPercent: -100 * (panelRef.current.length - 1),
+        scrollTrigger: {
+          end: () => "+=" + containerRef.current.offsetWidth * 2,
+          trigger: containerRef.current,
+          pin: true,
+          scrub: 0.5,
+        },
+      });
+      ScrollTrigger.normalizeScroll(true);
+    }, containerRef);
     return () => {
-      ScrollTrigger.killAll(); // react router dom link error resolution
+      ctx.revert();
     };
   }, []);
 
   return (
-    <Container ref={containerRef} id="id">
-      {Children.toArray(children).map((element, index) => (
-        <Panel ref={create} key={index}>
-          {element}
-        </Panel>
-      ))}
+    <Container ref={containerRef}>
+      <Panel ref={create}>
+        <FullScreen>hello</FullScreen>
+      </Panel>
+      <Panel ref={create}>
+        <FullScreen>hello</FullScreen>
+      </Panel>
+      <Panel ref={create}>
+        <FullScreen>hello</FullScreen>
+      </Panel>
     </Container>
   );
 };
@@ -55,5 +61,8 @@ const Container = styled.div`
   flex-direction: row;
 `;
 const Panel = styled.div``;
-
+const FullScreen = styled.div`
+  height: 100vh;
+  width: 100vw;
+`;
 export default HorizontalScreen;
